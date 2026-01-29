@@ -2,7 +2,32 @@
 
 Servidor Flask para streaming de conteúdo M3U8 com player integrado.
 
+## Requisitos
+
+- Python 3.7+
+- pip (gerenciador de pacotes Python)
+
 ## Instalação
+
+### 1. Criar ambiente virtual
+
+```bash
+python3 -m venv venv
+```
+
+### 2. Ativar o ambiente virtual
+
+**No Linux/Mac:**
+```bash
+source venv/bin/activate
+```
+
+**No Windows:**
+```bash
+venv\Scripts\activate
+```
+
+### 3. Instalar dependências
 
 ```bash
 pip install flask requests
@@ -22,8 +47,8 @@ Acesse `http://localhost:8080` no navegador.
 - Proxy M3U8 com suporte a parâmetros
 - Interface responsiva em tela cheia
 
-## Requisitos
+## Desativar ambiente virtual
 
-- Python 3.7+
-- Flask
-- Requests
+```bash
+deactivate
+```
