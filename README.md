@@ -1,6 +1,6 @@
 # TVBox Streaming Server
 
-Servidor Flask para streaming de conteúdo M3U8 com player integrado.
+Servidor Flask para streaming de conteúdo M3U8 com player integrado. Inclui interface web para visualização e servidor de streaming para integração com Jellyfin.
 
 ## Requisitos
 
@@ -35,17 +35,52 @@ pip install flask requests
 
 ## Como usar
 
+### Opção 1: Interface Web (main.py)
+
 ```bash
-python main.py
+python3 main.py
 ```
 
-Acesse `http://localhost:8080` no navegador.
+Acesse `http://localhost:8085` no navegador.
+
+### Opção 2: Servidor de Streaming (app/streaming.py)
+
+```bash
+cd app
+python3 streaming.py
+```
+
+O servidor escuta na porta `5000`.
+
+## URLs para Jellyfin
+
+Para integrar com Jellyfin, use as seguintes URLs (substitua o IP/hostname conforme necessário):
+
+```
+http://localhost:5000/stream/band
+http://localhost:5000/stream/sbt
+http://localhost:5000/stream/record-news
+http://localhost:5000/stream/tv-cultura
+```
 
 ## Funcionalidades
 
+### main.py
 - Player HLS integrado (hlsplayer.net)
-- Proxy M3U8 com suporte a parâmetros
 - Interface responsiva em tela cheia
+- Seleção de canais em sidebar
+
+### app/streaming.py
+- Servidor M3U8 para streaming direto
+- Compatível com Jellyfin e outros aplicativos
+- Suporte a proxy de streams
+
+## Canais Disponíveis
+
+- **band**: Band
+- **sbt**: SBT
+- **record-news**: Record News
+- **tv-cultura**: TV Cultura
 
 ## Desativar ambiente virtual
 
