@@ -82,4 +82,4 @@ def home():
     return render_template_string(HTML_TEMPLATE, channels=CHANNELS, current_channel=current_channel)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8085, debug=True)
