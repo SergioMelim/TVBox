@@ -3,10 +3,10 @@ import yt_dlp
 
 app = Flask(__name__)
 
-# DICIONÁRIO DE CANAIS ABERTOS
+# CONFIGURAÇÃO DE CANAIS
 CHANNELS = {
     "band": {
-        "name": "Band",
+        "name": "Band TV",
         "url": "https://hqf6tcxuhk.singularcdn.net.br/live/019498af-1fdf-7df5-86bd-e4a6f588d6a7/s1/playlist_nova-a.m3u8?sjwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmlfc3ViIjoiLzAxOTQ5OGFmLTFmZGYtN2RmNS04NmJkLWU0YTZmNTg4ZDZhNy8iLCJ1aWQiOiI2MzZjYmE2Zi03ZWY5LTRiZjEtOGZmZi05OWEzODc2NjM5ZDgiLCJyYXUiOm51bGwsImJleSI6ZmFsc2UsImlpcCI6ZmFsc2UsIm5iZiI6MTc2OTcxNzQyMCwiaWF0IjoxNzY5NzE3NDIwLCJleHAiOjE4MDEyNTM0MjAsImp0aSI6IjYzNmNiYTZmLTdlZjktNGJmMS04ZmZmLTk5YTM4NzY2MzlkOCIsImlzcyI6IlNwYWxsYSJ9.dMygPahTbVfmdsGtFHwUzu5uH11uf0-4f1Y4UHZT6Ks&uid=636cba6f-7ef9-4bf1-8fff-99a3876639d8&magica=sim",
         "logo": "https://logodownload.org/wp-content/uploads/2014/02/band-logo-0.png"
     },
@@ -46,7 +46,7 @@ def get_caze():
             if 'entries' in info:
                 for entry in info['entries']:
                     lives.append({
-                        "title": entry.get('title'),
+                        "name": entry.get('title'),
                         "url": f"https://www.youtube.com/embed/{entry.get('id')}?autoplay=1"
                     })
                     if len(lives) >= 5: break
@@ -59,148 +59,176 @@ HTML_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sinal Digital Comunitário</title>
+    <title>StreamHub | Sinal Comunitário</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #000; color: white; margin: 0; display: flex; overflow: hidden; height: 100vh; }
-        #sidebar { width: 300px; background: #1f1f1f; height: 100vh; overflow-y: auto; border-right: 1px solid #333; transition: width 0.3s ease; display: flex; flex-direction: column; flex-shrink: 0; }
-        #sidebar.collapsed { width: 85px; padding: 10px; }
-        #sidebar.collapsed h2, #sidebar.collapsed span, #sidebar.collapsed .section-header, #sidebar.collapsed .caze-toggle { display: none; }
-        .sidebar-header { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #333; }
-        #toggle-btn { background: none; border: none; color: #00d1b2; font-size: 1.5rem; cursor: pointer; }
-        .section-header { padding: 12px 15px; font-size: 0.85rem; color: #00d1b2; text-transform: uppercase; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #252525; margin-top: 2px; }
-        .submenu { display: none; padding: 5px 10px; background: #1a1a1a; }
-        .submenu.show { display: block; }
-        .channel-item { display: flex; align-items: center; padding: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; margin-bottom: 5px; text-decoration: none; color: white; background: #2a2a2a; }
-        .channel-item:hover { background: #333; border-left: 4px solid #00d1b2; }
-        .channel-item img { width: 35px; height: 35px; object-fit: contain; margin-right: 12px; background: white; border-radius: 4px; padding: 2px; }
-        .caze-toggle { padding: 10px; background: #333; border-radius: 8px; margin-top: 5px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-        .caze-toggle img { width: 30px; height: 30px; margin-right: 10px; background: white; border-radius: 4px; padding: 2px;}
-        .caze-submenu { display: none; padding-left: 15px; margin-top: 5px; border-left: 1px dashed #444; }
-        .caze-submenu.show { display: block; }
-        #btn-load { width: 100%; background: #ffcc00; color: black; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; font-size: 0.7rem; }
-        .arrow { transition: transform 0.3s; font-size: 0.7rem; }
+        :root {
+            --bg-dark: #0a0c0f;
+            --sidebar-bg: #12151a;
+            --accent: #00d1b2;
+            --card-bg: #1e232b;
+            --text-main: #e1e1e1;
+            --text-dim: #94a3b8;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+
+        #sidebar { 
+            width: 300px; background: var(--sidebar-bg); border-right: 1px solid #232a35;
+            display: flex; flex-direction: column; transition: width 0.3s ease; flex-shrink: 0;
+        }
+        #sidebar.collapsed { width: 85px; }
+        #sidebar.collapsed h2, #sidebar.collapsed span, #sidebar.collapsed .section-header, #sidebar.collapsed #btn-load-caze { display: none; }
+
+        .sidebar-header { padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #232a35; }
+        .logo-area { display: flex; align-items: center; gap: 10px; color: var(--accent); font-weight: 800; }
+
+        .section-header { 
+            padding: 15px; font-size: 0.75rem; color: var(--accent); 
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03); margin-top: 1px;
+        }
+        .arrow { transition: transform 0.3s; font-size: 0.7rem; color: var(--text-dim); }
         .arrow.open { transform: rotate(180deg); }
-        #player-container { flex-grow: 1; background: #000; height: 100vh; position: relative; }
+        
+        .submenu { display: none; padding: 10px; }
+        .submenu.show { display: block; }
+
+        .channel-card {
+            display: flex; align-items: center; padding: 10px; border-radius: 10px;
+            text-decoration: none; color: inherit; transition: 0.2s; margin-bottom: 5px;
+            background: transparent;
+        }
+        .channel-card:hover { background: var(--card-bg); }
+        .channel-card.active { background: var(--card-bg); border-left: 3px solid var(--accent); }
+
+        .logo-wrapper {
+            width: 36px; height: 36px; background: white; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 12px; flex-shrink: 0; padding: 3px;
+        }
+        .logo-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .fav-btn { margin-left: auto; color: var(--text-dim); cursor: pointer; font-size: 0.9rem; padding: 5px; }
+        .fav-btn.active { color: #ff4757; }
+
+        #btn-load-caze {
+            width: 100%; background: #ffcc00; color: #000; border: none;
+            padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px;
+        }
+
+        #main-stage { flex-grow: 1; background: #000; }
         iframe { width: 100%; height: 100%; border: none; }
-        .no-selection { display: flex; justify-content: center; align-items: center; height: 100%; color: #666; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="sidebar">
+    <aside id="sidebar">
         <div class="sidebar-header">
-            <h2>Canais</h2>
-            <button id="toggle-btn" onclick="toggleMenu()">☰</button>
+            <div class="logo-area"><i class="fas fa-satellite-dish"></i><span class="logo-text">STREAMHUB</span></div>
+            <i class="fas fa-bars" style="cursor:pointer" onclick="toggleSidebar()"></i>
         </div>
-        <div class="channel-list">
-            <div class="section-header" onclick="toggleSection('open-channels', this)">
-                <span>Canais Abertos</span>
-                <span class="arrow" id="arrow-open-channels">▼</span>
+        <div style="overflow-y: auto; flex-grow: 1;">
+            <div id="section-favs-header" class="section-header" onclick="toggleAccordion('submenu-favs', this)">
+                <span>Favoritos</span><i class="fas fa-chevron-down arrow" id="arrow-submenu-favs"></i>
             </div>
-            <div id="open-channels" class="submenu">
+            <div id="submenu-favs" class="submenu"></div>
+
+            <div class="section-header" onclick="toggleAccordion('submenu-open', this)">
+                <span>Canais Abertos</span><i class="fas fa-chevron-down arrow" id="arrow-submenu-open"></i>
+            </div>
+            <div id="submenu-open" class="submenu">
                 {% for id, info in channels.items() %}
-                <a href="/?ch={{ id }}" class="channel-item">
-                    <img src="{{ info.logo }}" alt="{{ info.name }}">
-                    <span style="font-size: 0.9rem;">{{ info.name }}</span>
-                </a>
+                <div class="channel-card {{ 'active' if current_id == id else '' }}" id="card-{{ id }}">
+                    <a href="/?ch={{ id }}" style="display:flex; align-items:center; flex-grow:1; text-decoration:none; color:inherit;">
+                        <div class="logo-wrapper"><img src="{{ info.logo }}"></div>
+                        <span class="nav-text">{{ info.name }}</span>
+                    </a>
+                    <i class="fas fa-heart fav-btn" onclick="toggleFavorite('{{ id }}', '{{ info.name }}', '{{ info.logo }}')"></i>
+                </div>
                 {% endfor %}
             </div>
 
-            <div class="section-header" onclick="toggleSection('sports-channels', this)">
-                <span>Esportes</span>
-                <span class="arrow" id="arrow-sports-channels">▼</span>
+            <div class="section-header" onclick="toggleAccordion('submenu-sports', this)">
+                <span>Esportes</span><i class="fas fa-chevron-down arrow" id="arrow-submenu-sports"></i>
             </div>
-            <div id="sports-channels" class="submenu">
-                <div class="caze-toggle" onclick="handleCazeClick(this)">
-                    <div style="display: flex; align-items: center;">
-                        <img src="https://logospng.org/wp-content/uploads/caze-tv.png" alt="CazéTV">
-                        <span style="font-size: 0.9rem;">Cazé TV</span>
-                    </div>
-                    <span class="arrow" id="caze-arrow">▼</span>
+            <div id="submenu-sports" class="submenu">
+                <div class="channel-card" onclick="toggleAccordion('caze-items', this)" style="cursor:pointer">
+                    <div class="logo-wrapper"><img src="https://logospng.org/wp-content/uploads/caze-tv.png"></div>
+                    <span class="nav-text">Cazé TV</span>
+                    <i class="fas fa-chevron-down arrow" style="margin-left:auto; font-size:0.6rem"></i>
                 </div>
-                <div id="caze-list" class="caze-submenu">
-                    <button id="btn-load" onclick="loadCaze(event)">+ CARREGAR LIVES</button>
-                    <div id="caze-items"></div>
+                <div id="caze-items" class="submenu" style="padding-left: 15px; border-left: 1px solid #333; margin-left: 18px;">
+                    <button id="btn-load-caze" onclick="loadCaze()">CARREGAR LIVES</button>
+                    <div id="caze-list"></div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div id="player-container">
+    </aside>
+    <main id="main-stage">
         {% if current_url %}
             <iframe src="{{ current_url|safe }}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         {% else %}
-            <div class="no-selection"><p>Escolha uma categoria ao lado.</p></div>
+            <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#444;">Selecione um canal</div>
         {% endif %}
-    </div>
+    </main>
 
     <script>
         window.onload = function() {
-            // Restaura Canais Abertos
-            if(localStorage.getItem('open-channels') === 'true') {
-                document.getElementById('open-channels').classList.add('show');
-                document.getElementById('arrow-open-channels').classList.add('open');
-            }
-            // Restaura Esportes
-            if(localStorage.getItem('sports-channels') === 'true') {
-                document.getElementById('sports-channels').classList.add('show');
-                document.getElementById('arrow-sports-channels').classList.add('open');
-            }
-            // Restaura o submenu da CazéTV
-            if(localStorage.getItem('caze-list-open') === 'true') {
-                document.getElementById('caze-list').classList.add('show');
-                document.getElementById('caze-arrow').classList.add('open');
-                
-                // Se a lista de vídeos já tinha sido carregada antes, carrega de novo automaticamente
-                if(localStorage.getItem('caze-loaded') === 'true') {
-                    loadCaze();
+            ['submenu-favs', 'submenu-open', 'submenu-sports', 'caze-items'].forEach(id => {
+                if (localStorage.getItem(id) === 'true') {
+                    document.getElementById(id).classList.add('show');
+                    const arrow = document.getElementById('arrow-' + id);
+                    if (arrow) arrow.classList.add('open');
                 }
-            }
+            });
+            renderFavorites();
+            if(localStorage.getItem('caze-loaded') === 'true') loadCaze();
         };
 
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
 
-        function toggleSection(id, element) {
-            const section = document.getElementById(id);
-            const arrow = element.querySelector('.arrow');
-            const isShowing = section.classList.toggle('show');
-            arrow.classList.toggle('open');
+        function toggleAccordion(id, element) {
+            const submenu = document.getElementById(id);
+            const isShowing = submenu.classList.toggle('show');
+            const arrow = element.querySelector('.arrow') || document.getElementById('arrow-' + id);
+            if (arrow) arrow.classList.toggle('open');
             localStorage.setItem(id, isShowing);
         }
 
-        function handleCazeClick(element) {
-            const submenu = document.getElementById('caze-list');
-            const arrow = document.getElementById('caze-arrow');
-            const isShowing = submenu.classList.toggle('show');
-            arrow.classList.toggle('open');
-            // Salva apenas se o menu está expandido
-            localStorage.setItem('caze-list-open', isShowing);
+        function toggleFavorite(id, name, logo) {
+            let favs = JSON.parse(localStorage.getItem('favChannels') || '{}');
+            favs[id] ? delete favs[id] : favs[id] = { name, logo };
+            localStorage.setItem('favChannels', JSON.stringify(favs));
+            renderFavorites();
         }
 
-        async function loadCaze(event) {
-            if(event) event.stopPropagation();
-            const btn = document.getElementById('btn-load');
-            const list = document.getElementById('caze-items');
-            const cazeLogo = "https://logospng.org/wp-content/uploads/caze-tv.png";
+        function renderFavorites() {
+            const favs = JSON.parse(localStorage.getItem('favChannels') || '{}');
+            const container = document.getElementById('submenu-favs');
+            const header = document.getElementById('section-favs-header');
+            container.innerHTML = '';
+            const keys = Object.keys(favs);
+            header.style.display = keys.length ? 'flex' : 'none';
+            keys.forEach(id => {
+                container.innerHTML += `<div class="channel-card"><a href="/?ch=${id}" style="display:flex; align-items:center; flex-grow:1; text-decoration:none; color:inherit;"><div class="logo-wrapper"><img src="${favs[id].logo}"></div><span class="nav-text">${favs[id].name}</span></a><i class="fas fa-heart fav-btn active" onclick="toggleFavorite('${id}')"></i></div>`;
+            });
+        }
+
+        async function loadCaze() {
+            const list = document.getElementById('caze-list');
+            const btn = document.getElementById('btn-load-caze');
             btn.innerText = "BUSCANDO...";
-            
             try {
                 const response = await fetch('/get_caze');
                 const lives = await response.json();
-                list.innerHTML = "";
+                list.innerHTML = '';
                 lives.forEach(live => {
-                    const item = document.createElement('a');
-                    item.href = `/?vid=${encodeURIComponent(live.url)}`;
-                    item.className = "channel-item";
-                    item.innerHTML = `<img src="${cazeLogo}"> <span style="font-size:0.75rem;">${live.title}</span>`;
-                    list.appendChild(item);
+                    list.innerHTML += `<a href="/?vid=${encodeURIComponent(live.url)}" class="channel-card"><div class="logo-wrapper"><img src="https://logospng.org/wp-content/uploads/caze-tv.png"></div><span class="nav-text" style="font-size:0.7rem">${live.name.substring(0,30)}...</span></a>`;
                 });
-                btn.style.display = "none";
-                // Salva que a programação foi carregada com sucesso
+                btn.style.display = 'none';
                 localStorage.setItem('caze-loaded', 'true');
-            } catch (e) { 
-                btn.innerText = "ERRO. TENTAR NOVAMENTE?"; 
-                localStorage.setItem('caze-loaded', 'false');
-            }
+            } catch (e) { btn.innerText = "ERRO AO CARREGAR"; }
         }
     </script>
 </body>
@@ -215,13 +243,10 @@ def home():
     if channel_id:
         channel = CHANNELS.get(channel_id)
         if channel:
-            if channel.get('type') == 'youtube':
-                current_url = channel.get('url')
-            else:
-                current_url = f"https://hlsplayer.net/embed?type=m3u8&src={channel.get('url')}"
+            current_url = channel.get('url') if channel.get('type') == 'youtube' else f"https://hlsplayer.net/embed?type=m3u8&src={channel.get('url')}"
     elif vid_url:
         current_url = vid_url
-    return render_template_string(HTML_TEMPLATE, channels=CHANNELS, current_url=current_url)
+    return render_template_string(HTML_TEMPLATE, channels=CHANNELS, current_id=channel_id, current_url=current_url)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8085, debug=True)
