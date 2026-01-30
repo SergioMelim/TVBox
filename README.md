@@ -30,7 +30,27 @@ venv\Scripts\activate
 ### 3. Instalar dependências
 
 ```bash
-pip install flask requests
+pip install flask requests yt-dlp
+```
+
+Opcionalmente, instale `ffmpeg` se pretende usar funcionalidades de processamento/recorte ou download com `yt-dlp`:
+
+- No Debian/Ubuntu:
+
+```bash
+sudo apt update && sudo apt install ffmpeg -y
+```
+
+- No Fedora/CentOS:
+
+```bash
+sudo dnf install ffmpeg -y
+```
+
+- No Windows (chocolatey):
+
+```powershell
+choco install ffmpeg
 ```
 
 ## Como usar
@@ -51,6 +71,28 @@ python3 streaming.py
 ```
 
 O servidor escuta na porta `5000`.
+
+## Uso do `yt_dlp`
+
+O `main.py` usa `yt_dlp` para listar transmissões ao vivo (rota `/get_caze`). Instruções rápidas:
+
+- `yt-dlp` já é instalado via `pip install yt-dlp` (veja seção dependências).
+- Instale `ffmpeg` se for necessário para processamento/downloads (opcional).
+
+Exemplo de execução (dentro do ambiente virtual):
+
+```bash
+# Executa o servidor principal (interface)
+python3 main.py
+
+# Em outro terminal, executa o servidor de proxy HLS
+cd app && python3 streaming.py
+```
+
+Observações:
+
+- `yt_dlp` é utilizado apenas para extrair listas/metadados de streams; o projeto não faz downloads automáticos.
+- O `app/streaming.py` faz proxy de streams HLS (m3u8). Embeds do YouTube não funcionam via proxy — use URLs m3u8 diretas ou a interface web.
 
 ## URLs para Jellyfin
 
