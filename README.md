@@ -72,6 +72,37 @@ python3 streaming.py
 
 O servidor escuta na porta `5000`.
 
+### Opção 3: StreamHub Player (app/streamhub.py)
+
+Player profissional de TVBox com suporte a IPTV (API Xtream), Live TV, Filmes e Séries. Funciona independente e com interface completa estilo Smart TV.
+
+```bash
+cd app
+python3 streamhub.py
+```
+
+Acesse `http://localhost:8085` no navegador.
+
+**Como usar:**
+
+1. Na tela inicial, clique em **CONFIG** (ícone de ferramentas).
+2. Preencha os dados do seu servidor IPTV:
+   - **Servidor**: URL base (ex: `http://iptv-provider.com:80`)
+   - **Usuário**: Seu username
+   - **Senha**: Sua password
+3. Clique em **SALVAR**.
+4. Volte e escolha uma categoria: **TV AO VIVO**, **FILMES** ou **SÉRIES**.
+5. Navegue pelas categorias e streams disponíveis.
+
+**Funcionalidades:**
+
+- Proxy de vídeo para streams em tempo real (live MPEG-TS e VoD MP4)
+- Suporte a API Xtream completa
+- Player de vídeo com controles HLS e MPEG-TS
+- Interface responsiva tipo Smart TV
+- Salva configurações no localStorage do navegador
+- Suporta thumbnails/capas dos canais e conteúdos
+
 ## Uso do `yt_dlp`
 
 O `main.py` usa `yt_dlp` para listar transmissões ao vivo (rota `/get_caze`). Instruções rápidas:
